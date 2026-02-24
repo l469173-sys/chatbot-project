@@ -1,0 +1,17 @@
+# --- Web ---
+flask==3.0.3
+flask-cors==4.0.1
+requests==2.32.3
+python-dotenv==1.0.1
+werkzeug==3.0.3
+
+# --- Crawling (optional tools) ---
+beautifulsoup4==4.12.3
+lxml==5.2.2
+
+# --- Vector DB / Embeddings ---
+chromadb==0.5.5
+sentence-transformers==3.0.1
+
+# --- Cache (optional; only if you actually use Redis in app.py) ---
+redis==5.0.8

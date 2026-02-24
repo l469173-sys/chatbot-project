@@ -1,0 +1,16 @@
+{
+  "meta": {
+    "db": ".\\company_data.db",
+    "images_dir": ".\\crawled_data\\images",
+    "note": "這份檔案是要拿去 apply_image_mapping.py 寫回 DB 的。value 必須是本機檔名（例如 LI_100_main.jpg）"
+  },
+  "mapping": {
+    "積分球 ISP-XXXX": "ISP_XXXX_main.jpg",
+    "鍍金積分球 ISP-XXXGL": "ISP_XXXGL_main.jpg",
+    "IS治具": "IS_fixture_main.jpg",
+    "CMOS影像(感測器)量測系統": "CMOS_main.jpg",
+    "廣角鏡頭量測-積分球均勻光源": "integrating_sphere_uniform_light_source_main.jpg",
+    "VCSEL量測儀": "VCSEL_main.jpg",
+    "光通量(流明)量測系統 LM-ISP-XXXX": "LM_ISP_XXXX_main.jpg"
+  }
+}

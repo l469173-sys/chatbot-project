@@ -1,0 +1,13 @@
+.venv
+venv
+__pycache__
+*.pyc
+.vscode
+chroma_db
+logs
+data\sessions
+.env
+company_data.db 
+company_data.db.bak* 
+company_data.db
+company_data.db.bak*

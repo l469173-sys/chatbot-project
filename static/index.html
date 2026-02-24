@@ -1,0 +1,661 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>尚澤光電｜企業知識問答系統</title>
+
+  <style>
+    :root{
+      --bg1:#6d6cf2;
+      --bg2:#8e5fd9;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --primary:#5b5ce2;
+      --danger:#ef4444;
+      --radius:18px;
+      --shadow: 0 10px 30px rgba(0,0,0,.12);
+    }
+    *{box-sizing:border-box}
+
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background: radial-gradient(1200px 600px at 20% 10%, rgba(255,255,255,.25), transparent 60%),
+                  linear-gradient(135deg,var(--bg1),var(--bg2));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+      overflow: hidden;
+    }
+
+    .app{
+      width: min(1200px, 100%);
+      height: calc(100vh - 56px);
+      max-height: 900px;
+      background: rgba(255,255,255,.16);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 0;
+    }
+
+    .left, .right{ min-height:0; }
+    .chat, .cards{ min-height:0; }
+
+    .left{
+      background: rgba(255,255,255,.7);
+      display:flex;
+      flex-direction:column;
+      border-right:1px solid rgba(0,0,0,.06);
+    }
+
+    .header{
+      padding:18px 20px;
+      background: linear-gradient(135deg, rgba(255,255,255,.85), rgba(255,255,255,.6));
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex: 0 0 auto;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:800;
+      letter-spacing:.3px;
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .badge{
+      font-size:12px;
+      color:rgba(255,255,255,.9);
+      background: rgba(91,92,226,.9);
+      padding:6px 10px;
+      border-radius:999px;
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    .header-actions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex: 0 0 auto;
+    }
+
+    .mini-btn{
+      border:none;
+      padding:8px 10px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:12px;
+      color:#fff;
+      background: rgba(31,41,55,.55);
+      user-select:none;
+    }
+    .mini-btn:hover{ background: rgba(31,41,55,.68); }
+
+    .chat{
+      flex:1 1 auto;
+      padding:18px;
+      overflow:auto;
+    }
+
+    .msg{ display:flex; margin:12px 0; }
+    .msg.user{ justify-content:flex-end; }
+
+    .bubble{
+      max-width: 78%;
+      padding:12px 14px;
+      border-radius: var(--radius);
+      line-height:1.45;
+      box-shadow: 0 6px 16px rgba(0,0,0,.08);
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .msg.user .bubble{
+      background: linear-gradient(135deg, rgba(91,92,226,.95), rgba(142,95,217,.92));
+      color:#fff;
+      border-bottom-right-radius: 6px;
+    }
+    .msg.bot .bubble{
+      background: #fff;
+      border:1px solid rgba(0,0,0,.06);
+      border-bottom-left-radius: 6px;
+    }
+
+    .meta{
+      margin-top:6px;
+      font-size:12px;
+      color: var(--muted);
+      max-width: 78%;
+      padding: 0 6px;
+    }
+    .msg.user .meta{ text-align: right; }
+
+    .composer{
+      padding:14px;
+      display:flex;
+      gap:10px;
+      background: rgba(255,255,255,.75);
+      border-top:1px solid rgba(0,0,0,.06);
+      flex: 0 0 auto;
+    }
+    .input{
+      flex:1;
+      border:1px solid rgba(0,0,0,.12);
+      border-radius: 999px;
+      padding:12px 14px;
+      outline:none;
+      font-size:14px;
+      background:#fff;
+    }
+    .btn{
+      border:none;
+      padding:12px 16px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:700;
+      user-select:none;
+    }
+    .btn.primary{ background: var(--primary); color:#fff; }
+    .btn.danger{ background: var(--danger); color:#fff; }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .right{
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+
+    .panel-title{
+      color: rgba(255,255,255,.95);
+      font-weight:800;
+      letter-spacing:.2px;
+      flex: 0 0 auto;
+    }
+
+    .cards{
+      flex:1 1 auto;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      padding-right:6px;
+    }
+
+    .card{
+      background: rgba(255,255,255,.92);
+      border:1px solid rgba(255,255,255,.25);
+      border-radius: 18px;
+      box-shadow: 0 10px 22px rgba(0,0,0,.10);
+      padding:14px;
+    }
+
+    .card-top{
+      display:flex;
+      gap:12px;
+      align-items:flex-start;
+    }
+
+    .thumb{
+      width:86px;
+      height:86px;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+      object-fit:cover;
+      flex:0 0 auto;
+    }
+
+    .card h3{
+      margin:0 0 6px 0;
+      font-size:15px;
+      line-height:1.25;
+    }
+
+    .tag{
+      display:inline-block;
+      font-size:12px;
+      padding:4px 10px;
+      border-radius:999px;
+      background: rgba(91,92,226,.1);
+      color: var(--primary);
+      margin:0 0 10px 0;
+    }
+    .muted{ color: var(--muted); font-size:13px; }
+
+    .imgs{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .imgs img{
+      width:86px; height:86px;
+      object-fit:cover;
+      border-radius:12px;
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+    }
+
+    .link{
+      display:inline-block;
+      margin-top:10px;
+      font-size:13px;
+      color: var(--primary);
+      text-decoration:none;
+      font-weight:700;
+    }
+
+    @media (max-width: 980px){
+      body{ padding:14px; }
+      .app{
+        grid-template-columns:1fr;
+        height: calc(100vh - 28px);
+        max-height: none;
+      }
+      .right{ order:-1; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app">
+    <section class="left">
+      <div class="header">
+        <div class="brand">尚澤光電｜企業知識問答系統</div>
+        <div class="header-actions">
+          <button class="mini-btn" id="depsBtn" title="檢查依賴服務（Ollama / SQLite / VDB）">Deps</button>
+          <div class="badge" id="status">Ready</div>
+        </div>
+      </div>
+
+      <div class="chat" id="chat"></div>
+
+      <div class="composer">
+        <input class="input" id="input" placeholder="輸入您的問題..." />
+        <button class="btn primary" id="send">發送</button>
+        <button class="btn danger" id="clear">清除</button>
+      </div>
+    </section>
+
+    <aside class="right">
+      <div class="panel-title">📌 相關資料 / 產品卡片</div>
+      <div class="cards" id="cards"></div>
+    </aside>
+  </div>
+
+  <script>
+    const chatEl = document.getElementById('chat');
+    const cardsEl = document.getElementById('cards');
+    const statusEl = document.getElementById('status');
+    const inputEl = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+    const clearBtn = document.getElementById('clear');
+    const depsBtn = document.getElementById('depsBtn');
+
+    const sessionId = localStorage.getItem('session_id') || crypto.randomUUID();
+    localStorage.setItem('session_id', sessionId);
+
+    // ✅ 用來中止前端 fetch + 通知後端 cancel
+    let currentController = null;
+    let currentRid = "";
+    let sending = false;
+    let lastSendMs = 0;
+
+    function addMsg(role, text, metaText){
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + (role === 'user' ? 'user' : 'bot');
+
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.textContent = text;
+
+      wrap.appendChild(bubble);
+      chatEl.appendChild(wrap);
+
+      if(metaText){
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = metaText;
+        chatEl.appendChild(meta);
+      }
+
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function setStatus(t){ statusEl.textContent = t; }
+
+    function isHttpUrl(s){
+      return typeof s === 'string' && (s.startsWith('http://') || s.startsWith('https://'));
+    }
+
+    function toImageSrc(x){
+      if(!x) return '';
+      const s = String(x).trim();
+      if(!s) return '';
+
+      if(isHttpUrl(s)) return s;
+      if(s.startsWith('/images/')) return s;
+
+      let fn = s.replace(/\\/g, '/');
+      fn = fn.replace(/^crawled_data\/images\//, '');
+      fn = fn.replace(/^\/+/, '');
+
+      const parts = fn.split('/').map(p => encodeURIComponent(p));
+      return '/images/' + parts.join('/');
+    }
+
+    function renderCards(relevantDocs){
+      cardsEl.innerHTML = '';
+      if(!relevantDocs || relevantDocs.length === 0){
+        cardsEl.innerHTML = '<div class="card"><div class="muted">沒有相關資料</div></div>';
+        return;
+      }
+
+      relevantDocs.forEach(doc=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        const titleText = doc.title || '(未命名)';
+        const catText = (doc.product_category || doc.category || '產品資訊');
+
+        let imgs = [];
+        if(Array.isArray(doc.images)) imgs = doc.images.slice();
+        if(doc.image && !imgs.includes(doc.image)) imgs.unshift(doc.image);
+        imgs = imgs.filter(Boolean);
+
+        const mainImg = imgs.length ? toImageSrc(imgs[0]) : '';
+
+        const desc = String(doc.description || '').trim();
+        const specs = String(doc.specifications || '').trim();
+        const text = desc || specs;
+
+        const top = document.createElement('div');
+        top.className = 'card-top';
+
+        if(mainImg){
+          const thumb = document.createElement('img');
+          thumb.className = 'thumb';
+          thumb.src = mainImg;
+          thumb.alt = titleText;
+          thumb.loading = 'lazy';
+          thumb.onerror = () => { thumb.style.display = 'none'; };
+          top.appendChild(thumb);
+        }
+
+        const topRight = document.createElement('div');
+        topRight.style.flex = '1 1 auto';
+        topRight.style.minWidth = '0';
+
+        const title = document.createElement('h3');
+        title.textContent = titleText;
+        topRight.appendChild(title);
+
+        const tag = document.createElement('div');
+        tag.className = 'tag';
+        tag.textContent = catText;
+        topRight.appendChild(tag);
+
+        if(text){
+          const p = document.createElement('div');
+          p.className = 'muted';
+          p.textContent = text.slice(0, 160) + (text.length > 160 ? '…' : '');
+          topRight.appendChild(p);
+        }
+
+        top.appendChild(topRight);
+        card.appendChild(top);
+
+        const extraImgs = imgs.slice(1, 2);
+        if(extraImgs.length){
+          const box = document.createElement('div');
+          box.className = 'imgs';
+          extraImgs.forEach(item=>{
+            const img = document.createElement('img');
+            img.src = toImageSrc(item);
+            img.alt = titleText;
+            img.loading = 'lazy';
+            img.onerror = () => img.style.display = 'none';
+            box.appendChild(img);
+          });
+          card.appendChild(box);
+        }
+
+        if(doc.url){
+          const a = document.createElement('a');
+          a.className = 'link';
+          a.href = doc.url;
+          a.target = '_blank';
+          a.rel = 'noreferrer';
+          a.textContent = '查看原始頁面 →';
+          card.appendChild(a);
+        }
+
+        cardsEl.appendChild(card);
+      });
+    }
+
+    function pickAnswer(data){
+      return (data && (data.response || data.answer || data.reply || data.message)) || '';
+    }
+
+    function friendlyError(resStatus, data){
+      const e = (data && data.error) ? String(data.error) : '';
+      if(resStatus === 499) return '已取消請求。';
+      if(resStatus === 503) return '系統忙碌中，請稍後再試。';
+      if(resStatus === 504) return '推論逾時，建議縮短問題或稍後重試。';
+      if(resStatus === 429) return '你送出太快了，請稍等一下再試。';
+      return e ? ('API 錯誤：' + e) : ('HTTP ' + resStatus);
+    }
+
+    async function cancelCurrent(reason){
+      // 1) abort fetch
+      if(currentController){
+        try{ currentController.abort(); }catch(e){}
+      }
+      // 2) notify backend cancel
+      if(currentRid){
+        try{
+          await fetch('/api/cancel', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ rid: currentRid })
+          });
+        }catch(e){}
+      }
+      if(reason){
+        addMsg('assistant', reason);
+      }
+      currentController = null;
+      currentRid = "";
+      sendBtn.disabled = false;
+      sending = false;
+      setStatus('Ready');
+    }
+
+    async function send(){
+      const text = inputEl.value.trim();
+      if(!text) return;
+
+      // front-end throttle (extra safety)
+      const now = Date.now();
+      if(sending) return;
+      if(now - lastSendMs < 250) return;
+      lastSendMs = now;
+
+      // 若還在送出中：先取消上一個（避免多發）
+      if(currentController){
+        await cancelCurrent('⏹️ 已停止上一個請求，改用最新問題處理。');
+      }
+
+      addMsg('user', text);
+      inputEl.value = '';
+      setStatus('處理中...');
+      sendBtn.disabled = true;
+      sending = true;
+
+      currentController = new AbortController();
+      currentRid = crypto.randomUUID().replaceAll('-', '').slice(0, 10);
+
+      const timeoutMs = 180000;
+      const timer = setTimeout(() => {
+        try{ currentController.abort(); }catch(e){}
+      }, timeoutMs);
+
+      try{
+        const res = await fetch('/api/chat', {
+          method:'POST',
+          headers:{'Content-Type':'application/json', 'X-Request-Id': currentRid},
+          body: JSON.stringify({ message: text, session_id: sessionId, rid: currentRid }),
+          signal: currentController.signal
+        });
+
+        const reqIdFromHeader = res.headers.get('X-Request-Id') || '';
+        const data = await res.json().catch(()=> ({}));
+        clearTimeout(timer);
+
+        if(!res.ok){
+          addMsg('assistant', '❌ ' + friendlyError(res.status, data), reqIdFromHeader ? ('rid=' + reqIdFromHeader) : '');
+          renderCards([]);
+          setStatus('Error');
+          sendBtn.disabled = false;
+          currentController = null;
+          currentRid = "";
+          sending = false;
+          return;
+        }
+
+        const ans = pickAnswer(data);
+        const meta = [];
+        if(data.intent) meta.push('intent=' + data.intent);
+        if(data.answer_mode) meta.push('mode=' + data.answer_mode);
+        if(typeof data.elapsed_ms === 'number') meta.push('ms=' + data.elapsed_ms);
+        if(typeof data.ollama_ms === 'number') meta.push('ollama=' + data.ollama_ms);
+        if(data.prompt_version) meta.push('pv=' + data.prompt_version);
+        if(reqIdFromHeader) meta.push('rid=' + reqIdFromHeader);
+        const metaText = meta.length ? ('[' + meta.join(', ') + ']') : '';
+
+        addMsg('assistant', ans || '（API 已回傳，但沒有 response 內容）', metaText);
+        renderCards(data.relevant_docs || []);
+        setStatus('Ready');
+      }catch(e){
+        clearTimeout(timer);
+        const msg = (e && e.name === 'AbortError')
+          ? '已停止請求（清除或逾時/切換問題）。'
+          : (e && e.message ? e.message : String(e));
+
+        // abort 也要通知後端 cancel（避免後端還在跑）
+        if(currentRid){
+          try{
+            await fetch('/api/cancel', {
+              method:'POST',
+              headers:{'Content-Type':'application/json'},
+              body: JSON.stringify({ rid: currentRid })
+            });
+          }catch(_){}
+        }
+
+        addMsg('assistant', '⏹️ ' + msg, currentRid ? ('rid=' + currentRid) : '');
+        setStatus('Ready');
+      }finally{
+        sendBtn.disabled = false;
+        currentController = null;
+        currentRid = "";
+        sending = false;
+      }
+    }
+
+    async function clearHistory(){
+      // ✅ 清除 = 真正停止後端
+      await cancelCurrent('🧹 已停止目前請求並清除畫面。');
+
+      try{
+        const res = await fetch('/api/clear', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ session_id: sessionId })
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(!res.ok){
+          addMsg('assistant', '❌ 清除失敗：' + (data.error || ('HTTP ' + res.status)));
+          setStatus('Error');
+          return;
+        }
+        chatEl.innerHTML = '';
+        cardsEl.innerHTML = '';
+        setStatus('Cleared');
+        addMsg('assistant', '已清除對話紀錄，請重新輸入問題。');
+        setStatus('Ready');
+      }catch(e){
+        addMsg('assistant', '❌ 清除失敗：' + (e.message || e));
+        setStatus('Error');
+      }
+    }
+
+    async function quickHealth(){
+      try{
+        const res = await fetch('/api/health');
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok && data && data.ok){
+          setStatus('Ready');
+          return;
+        }
+        setStatus('Health?');
+      }catch(_){
+        setStatus('Offline');
+      }
+    }
+
+    async function depsHealth(){
+      try{
+        setStatus('Deps...');
+        const res = await fetch('/api/health/deps');
+        const data = await res.json().catch(()=> ({}));
+        if(res.ok && data && data.ok){
+          addMsg('assistant', '✅ 依賴服務正常（Ollama / SQLite / VDB）');
+          setStatus('Ready');
+          return;
+        }
+        const deps = (data && data.deps) ? data.deps : {};
+        const parts = [];
+        for(const k of Object.keys(deps)){
+          const it = deps[k] || {};
+          parts.push(`${k}:${it.ok ? 'ok' : 'fail'}${it.msg ? ' ('+it.msg+')' : ''}`);
+        }
+        addMsg('assistant', '⚠️ 依賴檢查異常：\n' + (parts.join('\n') || '未知錯誤'));
+        setStatus('DepsFail');
+      }catch(e){
+        addMsg('assistant', '⚠️ 依賴檢查失敗：' + (e.message || e));
+        setStatus('DepsFail');
+      }finally{
+        setTimeout(()=> setStatus('Ready'), 900);
+      }
+    }
+
+    sendBtn.addEventListener('click', send);
+    clearBtn.addEventListener('click', clearHistory);
+    depsBtn.addEventListener('click', depsHealth);
+    inputEl.addEventListener('keydown', (e)=>{ if(e.key==='Enter') send(); });
+
+    addMsg('assistant', '你好！請輸入想查詢的公司資訊或產品問題。');
+    renderCards([]);
+    quickHealth();
+  </script>
+</body>
+</html>

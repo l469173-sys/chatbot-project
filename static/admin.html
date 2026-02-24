@@ -1,0 +1,1076 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>尚澤光電｜後台管理（Admin）</title>
+
+  <style>
+    :root{
+      --bg1:#111827;
+      --bg2:#1f2937;
+      --card:#0b1220;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --primary:#22c55e;
+      --primary2:#60a5fa;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --border: rgba(255,255,255,.10);
+      --radius:16px;
+      --shadow: 0 12px 28px rgba(0,0,0,.35);
+    }
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background: radial-gradient(900px 420px at 20% 10%, rgba(96,165,250,.15), transparent 65%),
+                  radial-gradient(900px 420px at 80% 30%, rgba(34,197,94,.12), transparent 60%),
+                  linear-gradient(135deg, var(--bg1), var(--bg2));
+      padding:22px;
+    }
+
+    .wrap{ width:min(1200px, 100%); margin:0 auto; }
+    .topbar{
+      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      padding:14px 16px;
+      border:1px solid var(--border);
+      border-radius: 18px;
+      background: rgba(255,255,255,.04);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+    .brand{ font-weight:900; letter-spacing:.3px; display:flex; gap:10px; align-items:center; }
+    .badge{
+      font-size:12px; color:rgba(255,255,255,.95);
+      padding:6px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+    }
+    .badge.ok{ border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.12); }
+    .badge.warn{ border-color: rgba(245,158,11,.40); background: rgba(245,158,11,.12); }
+    .badge.bad{ border-color: rgba(239,68,68,.40); background: rgba(239,68,68,.12); }
+    .badge.busy{ border-color: rgba(96,165,250,.45); background: rgba(96,165,250,.14); }
+
+    .grid{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap:14px;
+    }
+
+    .card{
+      border:1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.03);
+      box-shadow: var(--shadow);
+      padding:14px;
+      min-height: 120px;
+    }
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:15px;
+      letter-spacing:.2px;
+    }
+    .muted{ color: var(--muted); font-size:13px; line-height:1.45; }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .row + .row{ margin-top:10px; }
+
+    .input{
+      width:100%;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.25);
+      color: var(--text);
+      border-radius: 12px;
+      padding:11px 12px;
+      outline:none;
+      font-size:14px;
+    }
+    .input.small{ padding:9px 10px; font-size:13px; }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+
+    .btn{
+      border:none;
+      padding:10px 12px;
+      border-radius: 12px;
+      font-weight:800;
+      cursor:pointer;
+      user-select:none;
+      font-size:13px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .btn.primary{ background: rgba(34,197,94,.95); color:#052e16; }
+    .btn.blue{ background: rgba(96,165,250,.95); color:#08142b; }
+    .btn.warn{ background: rgba(245,158,11,.95); color:#2a1700; }
+    .btn.danger{ background: rgba(239,68,68,.95); color:#2b0b0b; }
+    .btn.ghost{
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .kvs{
+      display:grid;
+      grid-template-columns: 170px 1fr;
+      gap:8px 12px;
+      margin-top:10px;
+      font-size:13px;
+    }
+    .k{ color: var(--muted); }
+    .v{ color: var(--text); word-break: break-all; }
+
+    .log{
+      margin-top:10px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.25);
+      border-radius: 14px;
+      padding:10px;
+      height: 320px;
+      overflow:auto;
+      white-space:pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size:12px;
+      color: rgba(229,231,235,.95);
+    }
+
+    table{
+      width:100%;
+      border-collapse: collapse;
+      margin-top:10px;
+      font-size:13px;
+    }
+    th, td{
+      border-bottom:1px solid rgba(255,255,255,.08);
+      padding:8px 6px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th{ color: var(--muted); font-weight:800; }
+
+    .pill{
+      display:inline-block;
+      padding:3px 10px;
+      border-radius:999px;
+      font-size:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: rgba(229,231,235,.95);
+    }
+    .pill.ok{ border-color: rgba(34,197,94,.35); background: rgba(34,197,94,.10); }
+    .pill.bad{ border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10); }
+    .pill.warn{ border-color: rgba(245,158,11,.40); background: rgba(245,158,11,.10); }
+
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap;
+      margin:10px 0 0 0;
+      align-items:center;
+    }
+    .tab{
+      padding:8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight:800;
+      font-size:12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tab.active{
+      border-color: rgba(96,165,250,.45);
+      background: rgba(96,165,250,.18);
+    }
+
+    .footer-note{
+      margin-top:14px;
+      color: var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+
+    .right-actions{
+      margin-left:auto;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .mini{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:6px;
+    }
+    .checkbox{
+      display:flex; gap:8px; align-items:center;
+      padding:8px 10px;
+      border-radius: 12px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      font-size:12px;
+      color: rgba(229,231,235,.95);
+      user-select:none;
+    }
+
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: 1fr; }
+      .split{ grid-template-columns: 1fr; }
+      .kvs{ grid-template-columns: 130px 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        🛠️ 尚澤光電｜後台管理
+        <span class="badge" id="status">Ready</span>
+      </div>
+      <div class="row">
+        <button class="btn ghost" data-busy="1" id="btnHealth">/api/health</button>
+        <button class="btn ghost" data-busy="1" id="btnCompanyInfo">/api/company-info</button>
+        <button class="btn ghost" data-busy="1" id="btnAdminStatus">/api/admin/status</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <!-- Left -->
+      <section class="card">
+        <h2>🔐 管理 Token（Header: <code>X-Reload-Token</code>）</h2>
+
+        <div class="split">
+          <div>
+            <input class="input" id="token" type="password" placeholder="請輸入 RELOAD_TOKEN（會存到 localStorage）" />
+            <div class="mini">
+              <label class="checkbox">
+                <input type="checkbox" id="toggleToken" />
+                顯示 Token
+              </label>
+              <span class="muted">（Demo/內網用 OK；公開網域請勿存 token）</span>
+            </div>
+          </div>
+          <div>
+            <div class="muted" style="margin-bottom:6px;">請求 timeout（秒）</div>
+            <input class="input small" id="timeoutSec" value="30" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btn blue" data-busy="1" id="btnSaveToken">儲存 Token</button>
+          <button class="btn danger" data-busy="1" id="btnClearToken">清除 Token</button>
+          <button class="btn ghost" data-busy="1" id="btnTestToken">測試 Token（POST /api/reload-data）</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,.10); margin:14px 0;">
+
+        <h2>♻️ 向量庫操作（/api/reload-data）</h2>
+        <div class="muted" style="margin-top:-4px;">
+          ✅ scope：<span class="mono">all / product / system</span>　
+          ✅ 勾選「全量重建」才送 <span class="mono">full_rebuild=true</span>；否則走增量更新（建議預設）
+        </div>
+
+        <div class="mini">
+          <label class="checkbox">
+            <input type="checkbox" id="chkFullRebuild" />
+            全量重建（慢，但最乾淨）
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="chkAutoRefreshAfter" checked />
+            操作後自動刷新 info
+          </label>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btn primary" data-busy="1" id="btnRebuildAll">執行 ALL</button>
+          <button class="btn warn" data-busy="1" id="btnRebuildProduct">執行 PRODUCT</button>
+          <button class="btn warn" data-busy="1" id="btnRebuildSystem">執行 SYSTEM</button>
+          <button class="btn ghost" data-busy="1" id="btnListMd">📚 讀取產品 MD 清單（/api/admin/info）</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,.10); margin:14px 0;">
+
+        <h2>⬆️ 上傳 / 更新 product_*.md（/api/admin/md-upload）</h2>
+
+        <div class="split">
+          <div>
+            <div class="muted" style="margin-bottom:6px;">覆蓋檔名（可留空，使用你選的檔案原名）</div>
+            <input class="input small" id="mdName" placeholder="例如：product_LID-060.md（可選）" />
+          </div>
+          <div>
+            <div class="muted" style="margin-bottom:6px;">選擇檔案</div>
+            <input class="input small" type="file" id="mdFile" accept=".md,.txt" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px;">
+          <button class="btn blue" data-busy="1" id="btnUploadMd">上傳 MD</button>
+          <button class="btn ghost" data-busy="1" id="btnUploadThenRebuildProduct">上傳後執行 PRODUCT</button>
+          <button class="btn ghost" data-busy="1" id="btnUploadThenRebuildAll">上傳後執行 ALL</button>
+        </div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,.10); margin:14px 0;">
+
+        <h2>🧾 Log Tail（/api/admin/log-tail）</h2>
+        <div class="muted" style="margin-top:-4px;">
+          ✅ 建議用 rid 過濾：先從聊天回傳的 rid 直接貼進去。　
+          ✅ 自動刷新在分頁背景會自動暫停（省資源）。
+        </div>
+
+        <div class="split" style="margin-top:10px;">
+          <div>
+            <div class="muted" style="margin-bottom:6px;">行數 n</div>
+            <input class="input small" id="logN" placeholder="例如：250" value="250" />
+          </div>
+          <div>
+            <div class="muted" style="margin-bottom:6px;">RID 過濾（可留空）</div>
+            <input class="input small" id="logRid" placeholder="例如：a1b2c3d4e5" />
+          </div>
+        </div>
+
+        <div class="split" style="margin-top:10px;">
+          <div>
+            <div class="muted" style="margin-bottom:6px;">自動刷新間隔（毫秒）</div>
+            <input class="input small" id="logInterval" value="2000" />
+          </div>
+          <div class="row" style="align-items:flex-end;">
+            <button class="btn ghost" data-busy="1" id="btnLogTail">讀取 Log</button>
+            <button class="btn ghost" data-busy="1" id="btnLogAuto">自動刷新：OFF</button>
+          </div>
+        </div>
+
+        <div class="footer-note">
+          ✅ Token 會以 <code>X-Reload-Token</code> 送出。<br>
+          ✅ 如果遇到 401/403：代表 token 錯或後端未允許 admin API。<br>
+          ✅ 操作向量庫時，請避免多次連點（已加 busy 鎖）。
+        </div>
+      </section>
+
+      <!-- Right -->
+      <section class="card">
+        <h2>📌 系統資訊</h2>
+        <div class="kvs" id="infoKvs">
+          <div class="k">狀態</div><div class="v">（尚未讀取）</div>
+        </div>
+
+        <div class="tabs">
+          <div class="tab active" data-tab="md">📄 MD 清單</div>
+          <div class="tab" data-tab="sources">🧠 VDB Sources</div>
+          <div class="tab" data-tab="log">🧾 Log</div>
+
+          <div class="right-actions">
+            <button class="btn ghost" data-busy="1" id="btnRefreshAll">🔄 一鍵刷新（health+admin）</button>
+            <button class="btn ghost" data-busy="1" id="btnClearLog">🧹 清除 Log</button>
+          </div>
+        </div>
+
+        <!-- MD list -->
+        <div id="panel-md">
+          <div class="muted" style="margin-top:10px;">按「讀取產品 MD 清單」後顯示。</div>
+          <table id="mdTable" style="display:none;">
+            <thead>
+              <tr>
+                <th style="width:56px;">#</th>
+                <th>檔名</th>
+                <th style="width:90px;">大小</th>
+                <th style="width:160px;">更新時間</th>
+                <th style="width:100px;">狀態</th>
+              </tr>
+            </thead>
+            <tbody id="mdTbody"></tbody>
+          </table>
+        </div>
+
+        <!-- Sources -->
+        <div id="panel-sources" style="display:none;">
+          <div class="muted" style="margin-top:10px;">
+            這是後端回傳的 <span class="mono">vdb_sources</span>（向量庫 rebuild 會收集的來源檔案）。
+          </div>
+          <table id="srcTable" style="display:none;">
+            <thead>
+              <tr>
+                <th style="width:56px;">#</th>
+                <th>路徑</th>
+                <th style="width:90px;">大小</th>
+                <th style="width:160px;">更新時間</th>
+              </tr>
+            </thead>
+            <tbody id="srcTbody"></tbody>
+          </table>
+          <div class="muted" id="srcEmpty" style="margin-top:10px;">（尚未讀取）</div>
+        </div>
+
+        <!-- Log -->
+        <div id="panel-log" style="display:none;">
+          <div class="log" id="log"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------
+    // Elements
+    // -----------------------------
+    const statusEl = document.getElementById('status');
+    const tokenEl = document.getElementById('token');
+    const toggleTokenEl = document.getElementById('toggleToken');
+    const timeoutSecEl = document.getElementById('timeoutSec');
+
+    const infoKvsEl = document.getElementById('infoKvs');
+
+    const mdTable = document.getElementById('mdTable');
+    const mdTbody = document.getElementById('mdTbody');
+
+    const srcTable = document.getElementById('srcTable');
+    const srcTbody = document.getElementById('srcTbody');
+    const srcEmpty = document.getElementById('srcEmpty');
+
+    const mdFileEl = document.getElementById('mdFile');
+    const mdNameEl = document.getElementById('mdName');
+
+    const logEl = document.getElementById('log');
+    const logNEl = document.getElementById('logN');
+    const logRidEl = document.getElementById('logRid');
+    const logIntervalEl = document.getElementById('logInterval');
+
+    const chkFullRebuild = document.getElementById('chkFullRebuild');
+    const chkAutoRefreshAfter = document.getElementById('chkAutoRefreshAfter');
+
+    const STORAGE_KEY = 'admin_reload_token';
+
+    // -----------------------------
+    // Status / Busy
+    // -----------------------------
+    let busy = false;
+
+    function setBadge(text, cls){
+      statusEl.textContent = text;
+      statusEl.className = 'badge ' + (cls || '');
+    }
+
+    function setBusy(on, label){
+      busy = !!on;
+      const btns = Array.from(document.querySelectorAll('button[data-busy="1"]'));
+      btns.forEach(b => b.disabled = busy);
+      if(on) setBadge(label || 'Working...', 'busy');
+      else setBadge('Ready', 'ok');
+    }
+
+    // -----------------------------
+    // Logging (UI log)
+    // -----------------------------
+    function uiLog(line){
+      const ts = new Date().toLocaleString();
+      const msg = `[${ts}] ${line}\n`;
+      if(logEl){
+        logEl.textContent += msg;
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+    }
+    function clearLog(){
+      if(logEl) logEl.textContent = "";
+      uiLog("Log cleared");
+    }
+
+    // -----------------------------
+    // Token storage
+    // -----------------------------
+    function getToken(){ return (localStorage.getItem(STORAGE_KEY) || '').trim(); }
+    function setToken(v){ localStorage.setItem(STORAGE_KEY, (v || '').trim()); }
+    function clearToken(){ localStorage.removeItem(STORAGE_KEY); }
+
+    function authHeaders(extra = {}){
+      const t = getToken();
+      const h = { ...extra };
+      if(t) h['X-Reload-Token'] = t;
+      return h;
+    }
+
+    // -----------------------------
+    // Fetch with timeout
+    // -----------------------------
+    function getTimeoutMs(){
+      const s = Number((timeoutSecEl.value || '30').trim());
+      const sec = (Number.isFinite(s) && s > 0) ? s : 30;
+      return Math.min(Math.max(sec * 1000, 3000), 120000);
+    }
+
+    async function fetchJson(url, options = {}){
+      const timeoutMs = getTimeoutMs();
+      const ctrl = new AbortController();
+      const timer = setTimeout(()=> ctrl.abort(), timeoutMs);
+
+      try{
+        const res = await fetch(url, { ...options, signal: ctrl.signal });
+        const data = await res.json().catch(()=> ({}));
+        return { res, data };
+      }catch(e){
+        return { res: null, data: { error: e?.name === 'AbortError' ? 'timeout' : (e?.message || String(e)) } };
+      }finally{
+        clearTimeout(timer);
+      }
+    }
+
+    async function apiGet(url){
+      return await fetchJson(url, { headers: authHeaders() });
+    }
+
+    async function apiPostJson(url, bodyObj){
+      return await fetchJson(url, {
+        method:'POST',
+        headers: authHeaders({ 'Content-Type':'application/json' }),
+        body: JSON.stringify(bodyObj || {})
+      });
+    }
+
+    async function apiPostForm(url, formData){
+      return await fetchJson(url, {
+        method:'POST',
+        headers: authHeaders(),
+        body: formData
+      });
+    }
+
+    // -----------------------------
+    // Helpers
+    // -----------------------------
+    function escapeHtml(s){
+      return String(s ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function fmtBytes(n){
+      const x = Number(n || 0);
+      if(x < 1024) return x + " B";
+      if(x < 1024*1024) return (x/1024).toFixed(1) + " KB";
+      if(x < 1024*1024*1024) return (x/1024/1024).toFixed(1) + " MB";
+      return (x/1024/1024/1024).toFixed(1) + " GB";
+    }
+
+    function fmtTime(sec){
+      const s = Number(sec || 0);
+      if(!s) return "-";
+      return new Date(s * 1000).toLocaleString();
+    }
+
+    function pillForStatus(st){
+      if(!st) return '<span class="pill">-</span>';
+      if(st.running) return '<span class="pill warn">REBUILDING</span>';
+      if(st.last_error) return '<span class="pill bad">ERROR</span>';
+      if(st.dirty) return '<span class="pill warn">DIRTY</span>';
+      return '<span class="pill ok">OK</span>';
+    }
+
+    function renderInfo(data){
+      const kvs = [];
+      kvs.push(['ok', String(!!data.ok)]);
+      if(data.timestamp) kvs.push(['timestamp', data.timestamp]);
+      if(data.db_path) kvs.push(['db_path', data.db_path]);
+      if(data.chroma_dir) kvs.push(['chroma_dir', data.chroma_dir]);
+      if(data.images_dir) kvs.push(['images_dir', data.images_dir]);
+      if(data.product_structured_dir) kvs.push(['product_structured_dir', data.product_structured_dir]);
+      if(data.system_docs_dir) kvs.push(['system_docs_dir', data.system_docs_dir]);
+      if(data.company_info_path) kvs.push(['company_info_path', data.company_info_path]);
+      if(typeof data.company_info_loaded === 'boolean') kvs.push(['company_info_loaded', String(data.company_info_loaded)]);
+      if(data.ollama_url) kvs.push(['ollama_url', data.ollama_url]);
+      if(data.models) kvs.push(['models', JSON.stringify(data.models)]);
+      if(typeof data.reload_token_enabled === 'boolean') kvs.push(['reload_token_enabled', String(data.reload_token_enabled)]);
+      if(typeof data.admin_token_enabled === 'boolean') kvs.push(['admin_token_enabled', String(data.admin_token_enabled)]);
+      if(data.vdb_startup) kvs.push(['vdb_startup', JSON.stringify(data.vdb_startup)]);
+      if(data.vdb_status){
+        kvs.push(['vdb_status', pillForStatus(data.vdb_status) + ' ' + escapeHtml(JSON.stringify(data.vdb_status))]);
+      }
+
+      infoKvsEl.innerHTML = kvs.map(([k,v]) => {
+        if(k === 'vdb_status'){
+          return `<div class="k">${escapeHtml(k)}</div><div class="v">${v}</div>`;
+        }
+        return `<div class="k">${escapeHtml(k)}</div><div class="v">${escapeHtml(v)}</div>`;
+      }).join('') || '<div class="k">狀態</div><div class="v">（無資料）</div>';
+    }
+
+    function renderMdList(payload){
+      const mdFiles = Array.isArray(payload?.md_files) ? payload.md_files : null;
+      const files = Array.isArray(payload?.files) ? payload.files : null;
+
+      let list = [];
+      if(mdFiles && mdFiles.length){
+        list = mdFiles.map(x => ({
+          name: x?.name || '',
+          size: x?.size || 0,
+          mtime: x?.mtime || 0
+        })).filter(x => x.name);
+      }else if(files && files.length){
+        list = files.map(fn => ({ name: fn, size: 0, mtime: 0 }));
+      }
+
+      mdTbody.innerHTML = '';
+      if(!list.length){
+        mdTable.style.display = 'none';
+        uiLog('MD 清單：空（或 API 未提供 files / md_files）');
+        return;
+      }
+
+      mdTable.style.display = 'table';
+      list.forEach((it, idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td><code>${escapeHtml(it.name)}</code></td>
+          <td>${escapeHtml(it.size ? fmtBytes(it.size) : '-')}</td>
+          <td>${escapeHtml(it.mtime ? fmtTime(it.mtime) : '-')}</td>
+          <td><span class="pill ok">OK</span></td>
+        `;
+        mdTbody.appendChild(tr);
+      });
+    }
+
+    function renderSources(payload){
+      const srcs = Array.isArray(payload?.vdb_sources) ? payload.vdb_sources : [];
+      srcTbody.innerHTML = '';
+
+      if(!srcs.length){
+        srcTable.style.display = 'none';
+        srcEmpty.style.display = 'block';
+        srcEmpty.textContent = '（vdb_sources 空或後端未提供 list_sources）';
+        return;
+      }
+
+      if(srcs.length === 1 && srcs[0] && srcs[0].error){
+        srcTable.style.display = 'none';
+        srcEmpty.style.display = 'block';
+        srcEmpty.textContent = '（讀取 vdb_sources 失敗：' + srcs[0].error + '）';
+        return;
+      }
+
+      srcEmpty.style.display = 'none';
+      srcTable.style.display = 'table';
+
+      srcs.forEach((it, idx)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${idx+1}</td>
+          <td><code>${escapeHtml(it.path || it.source || '')}</code></td>
+          <td>${escapeHtml(it.size ? fmtBytes(it.size) : '-')}</td>
+          <td>${escapeHtml(it.mtime ? fmtTime(it.mtime) : '-')}</td>
+        `;
+        srcTbody.appendChild(tr);
+      });
+    }
+
+    // -----------------------------
+    // Tabs
+    // -----------------------------
+    const tabs = Array.from(document.querySelectorAll('.tab'));
+    const panelMd = document.getElementById('panel-md');
+    const panelSources = document.getElementById('panel-sources');
+    const panelLog = document.getElementById('panel-log');
+
+    function setTab(name){
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+      panelMd.style.display = name === 'md' ? 'block' : 'none';
+      panelSources.style.display = name === 'sources' ? 'block' : 'none';
+      panelLog.style.display = name === 'log' ? 'block' : 'none';
+    }
+    tabs.forEach(t => t.addEventListener('click', ()=> setTab(t.dataset.tab)));
+
+    // -----------------------------
+    // API actions
+    // -----------------------------
+    async function refreshAdminInfo(){
+      uiLog('GET /api/admin/info');
+      const { res, data } = await apiGet('/api/admin/info');
+
+      if(!res){
+        uiLog('-> ERR (network/timeout) ' + JSON.stringify(data));
+        setBadge('Error', 'bad');
+        return null;
+      }
+
+      uiLog(`-> HTTP ${res.status} ${res.ok ? 'OK' : 'ERR'}`);
+      if(!res.ok){
+        uiLog('Error: ' + JSON.stringify(data));
+        if(res.status === 401 || res.status === 403) alert('需要 Token（X-Reload-Token）或後端未允許。');
+        setBadge('Error', 'bad');
+        return null;
+      }
+
+      renderMdList(data);
+      renderSources(data);
+      uiLog('MD files count=' + (Array.isArray(data.files) ? data.files.length : (Array.isArray(data.md_files) ? data.md_files.length : 0)));
+      uiLog('VDB sources count=' + (Array.isArray(data.vdb_sources) ? data.vdb_sources.length : 0));
+      return data;
+    }
+
+    async function refreshHealth(){
+      uiLog('GET /api/health');
+      const { res, data } = await apiGet('/api/health');
+
+      if(!res){
+        uiLog('-> ERR (network/timeout) ' + JSON.stringify(data));
+        setBadge('Error', 'bad');
+        return { res:null, data };
+      }
+
+      uiLog(`-> HTTP ${res.status} ${res.ok ? 'OK' : 'ERR'}`);
+      if(res.ok){
+        renderInfo(data);
+        setBadge('Ready', 'ok');
+      }else{
+        uiLog('Error: ' + JSON.stringify(data));
+        setBadge('Error', 'bad');
+      }
+      return { res, data };
+    }
+
+    async function refreshAll(){
+      setBusy(true, 'Loading...');
+      try{
+        await refreshHealth();
+        await refreshAdminInfo();
+        setBusy(false);
+      }catch(e){
+        uiLog('Exception: ' + (e.message || e));
+        setBadge('Error', 'bad');
+        setBusy(false);
+      }
+    }
+
+    async function runRebuild(scope){
+      const full_rebuild = !!chkFullRebuild.checked;
+      const ok = confirm(
+        `確定要執行向量庫操作嗎？\n` +
+        `scope=${scope}\n` +
+        `mode=${full_rebuild ? 'FULL REBUILD' : 'INCREMENTAL'}\n` +
+        `（可能需要一些時間）`
+      );
+      if(!ok) return;
+
+      setBusy(true, full_rebuild ? 'Full Rebuild...' : 'Updating...');
+      uiLog(`POST /api/reload-data  { full_rebuild: ${full_rebuild}, scope: "${scope}" }`);
+
+      try{
+        const { res, data } = await apiPostJson('/api/reload-data', { full_rebuild, scope });
+
+        if(!res){
+          uiLog('-> ERR (network/timeout) ' + JSON.stringify(data));
+          setBadge('Error', 'bad');
+          return;
+        }
+
+        uiLog(`-> HTTP ${res.status} ${res.ok ? 'OK' : 'ERR'}`);
+        uiLog(JSON.stringify(data, null, 2));
+
+        if(!res.ok && (res.status === 401 || res.status === 403)){
+          alert('Token 可能不正確，或後端未啟用 Token 驗證。');
+        }
+
+        if(chkAutoRefreshAfter.checked){
+          await refreshAdminInfo().catch(()=> null);
+          await refreshHealth().catch(()=> null);
+        }
+
+        setBadge(res.ok ? 'Ready' : 'Error', res.ok ? 'ok' : 'bad');
+      }catch(e){
+        uiLog('Exception: ' + (e.message || e));
+        setBadge('Error', 'bad');
+      }finally{
+        setBusy(false);
+      }
+    }
+
+    async function uploadMd(thenScope){
+      const file = mdFileEl.files && mdFileEl.files[0];
+      if(!file){
+        alert('請先選擇要上傳的 .md 檔');
+        return;
+      }
+      const overrideName = (mdNameEl.value || '').trim();
+
+      const fd = new FormData();
+      fd.append('file', file);
+      if(overrideName) fd.append('filename', overrideName);
+
+      setBusy(true, 'Uploading...');
+      uiLog(`POST /api/admin/md-upload  file=${file.name} override=${overrideName || '(none)'}`);
+
+      try{
+        const { res, data } = await apiPostForm('/api/admin/md-upload', fd);
+
+        if(!res){
+          uiLog('-> ERR (network/timeout) ' + JSON.stringify(data));
+          setBadge('Error', 'bad');
+          return;
+        }
+
+        uiLog(`-> HTTP ${res.status} ${res.ok ? 'OK' : 'ERR'}`);
+        uiLog(JSON.stringify(data, null, 2));
+
+        if(!res.ok){
+          alert('上傳失敗：' + (data.error || ('HTTP ' + res.status)));
+          setBadge('Error', 'bad');
+          return;
+        }
+
+        if(chkAutoRefreshAfter.checked){
+          await refreshAdminInfo().catch(()=> null);
+        }
+        setBadge('Ready', 'ok');
+
+        if(thenScope){
+          const ok = confirm(`上傳成功。要立刻執行向量庫操作嗎？\nscope=${thenScope}\nmode=${chkFullRebuild.checked ? 'FULL' : 'INCREMENTAL'}`);
+          if(ok){
+            await runRebuild(thenScope);
+          }
+        }
+      }catch(e){
+        uiLog('Exception: ' + (e.message || e));
+        setBadge('Error', 'bad');
+      }finally{
+        setBusy(false);
+      }
+    }
+
+    async function fetchLogTail(){
+      const n = (logNEl.value || '').trim() || '250';
+      const rid = (logRidEl.value || '').trim();
+      const url = '/api/admin/log-tail?n=' + encodeURIComponent(n) + (rid ? ('&rid=' + encodeURIComponent(rid)) : '');
+
+      setBusy(true, 'Loading...');
+      uiLog('GET ' + url);
+
+      try{
+        const { res, data } = await apiGet(url);
+
+        if(!res){
+          uiLog('-> ERR (network/timeout) ' + JSON.stringify(data));
+          setBadge('Error', 'bad');
+          return;
+        }
+
+        uiLog(`-> HTTP ${res.status} ${res.ok ? 'OK' : 'ERR'}`);
+        if(!res.ok){
+          uiLog('Error: ' + JSON.stringify(data));
+          if(res.status === 401 || res.status === 403) alert('需要 Token（X-Reload-Token）或後端未允許。');
+          setBadge('Error', 'bad');
+          return;
+        }
+
+        const text = String(data.text || '');
+        logEl.textContent = text;
+        setTab('log');
+        setBadge('Ready', 'ok');
+      }catch(e){
+        uiLog('Exception: ' + (e.message || e));
+        setBadge('Error', 'bad');
+      }finally{
+        setBusy(false);
+      }
+    }
+
+    // -----------------------------
+    // Auto log (pause in background)
+    // -----------------------------
+    let logTimer = null;
+
+    function getIntervalMs(){
+      const v = Number((logIntervalEl.value || '2000').trim());
+      if(!Number.isFinite(v)) return 2000;
+      return Math.min(Math.max(v, 800), 30000);
+    }
+
+    function stopAutoLog(){
+      if(logTimer) clearInterval(logTimer);
+      logTimer = null;
+      const btn = document.getElementById('btnLogAuto');
+      btn.textContent = '自動刷新：OFF';
+      uiLog('Log auto refresh OFF');
+    }
+
+    function startAutoLog(){
+      stopAutoLog();
+      const btn = document.getElementById('btnLogAuto');
+      const ms = getIntervalMs();
+      logTimer = setInterval(()=>{
+        if(document.hidden) return; // background pause
+        fetchLogTail();
+      }, ms);
+      btn.textContent = '自動刷新：ON';
+      uiLog(`Log auto refresh ON (${ms}ms)`);
+    }
+
+    document.addEventListener('visibilitychange', ()=>{
+      // 不關掉 timer，只是背景不 fetch；回來繼續即可
+      if(!document.hidden && logTimer){
+        uiLog('Tab active: resume log auto refresh');
+      }
+    });
+
+    // -----------------------------
+    // Buttons
+    // -----------------------------
+    document.getElementById('btnSaveToken').addEventListener('click', ()=>{
+      setToken(tokenEl.value);
+      setBadge('Token Saved', 'ok');
+      uiLog('Token 已儲存到 localStorage（admin_reload_token）');
+    });
+
+    document.getElementById('btnClearToken').addEventListener('click', ()=>{
+      clearToken();
+      tokenEl.value = '';
+      setBadge('Token Cleared', 'warn');
+      uiLog('Token 已清除');
+    });
+
+    toggleTokenEl.addEventListener('change', ()=>{
+      tokenEl.type = toggleTokenEl.checked ? 'text' : 'password';
+    });
+
+    document.getElementById('btnHealth').addEventListener('click', refreshHealth);
+
+    document.getElementById('btnCompanyInfo').addEventListener('click', async ()=>{
+      setBusy(true, 'Loading...');
+      uiLog('GET /api/company-info');
+      try{
+        const { res, data } = await apiGet('/api/company-info');
+
+        if(!res){
+          uiLog('-> ERR (network/timeout) ' + JSON.stringify(data));
+          setBadge('Error', 'bad');
+          return;
+        }
+
+        uiLog(`-> HTTP ${res.status} ${res.ok ? 'OK' : 'ERR'}`);
+        if(res.ok){
+          uiLog('company_info parsed keys: ' + Object.keys(data.parsed || {}).join(', '));
+          setBadge('Ready', 'ok');
+        }else{
+          uiLog('Error: ' + JSON.stringify(data));
+          setBadge('Error', 'bad');
+        }
+      }catch(e){
+        uiLog('Exception: ' + (e.message || e));
+        setBadge('Error', 'bad');
+      }finally{
+        setBusy(false);
+      }
+    });
+
+    document.getElementById('btnAdminStatus').addEventListener('click', async ()=>{
+      setBusy(true, 'Loading...');
+      uiLog('GET /api/admin/status');
+      try{
+        const { res, data } = await apiGet('/api/admin/status');
+
+        if(!res){
+          uiLog('-> ERR (network/timeout) ' + JSON.stringify(data));
+          setBadge('Error', 'bad');
+          return;
+        }
+
+        uiLog(`-> HTTP ${res.status} ${res.ok ? 'OK' : 'ERR'}`);
+        if(res.ok){
+          renderInfo(data);
+          setBadge('Ready', 'ok');
+        }else{
+          uiLog('Error: ' + JSON.stringify(data));
+          if(res.status === 401 || res.status === 403) alert('需要 Token（X-Reload-Token）或後端未允許。');
+          setBadge('Error', 'bad');
+        }
+      }catch(e){
+        uiLog('Exception: ' + (e.message || e));
+        setBadge('Error', 'bad');
+      }finally{
+        setBusy(false);
+      }
+    });
+
+    document.getElementById('btnTestToken').addEventListener('click', async ()=>{
+      setBusy(true, 'Testing...');
+      uiLog('測試 Token：POST /api/reload-data（full_rebuild=false）');
+      try{
+        const { res, data } = await apiPostJson('/api/reload-data', { full_rebuild: false });
+
+        if(!res){
+          uiLog('-> ERR (network/timeout) ' + JSON.stringify(data));
+          setBadge('Error', 'bad');
+          return;
+        }
+
+        uiLog(`-> HTTP ${res.status} ${res.ok ? 'OK' : 'ERR'}`);
+        uiLog(JSON.stringify(data, null, 2));
+        if(res.status === 401 || res.status === 403){
+          alert('Token 可能不正確或後端未啟用 Token 驗證。');
+          setBadge('Error', 'bad');
+        }else{
+          setBadge(res.ok ? 'Ready' : 'Error', res.ok ? 'ok' : 'bad');
+        }
+      }catch(e){
+        uiLog('Exception: ' + (e.message || e));
+        setBadge('Error', 'bad');
+      }finally{
+        setBusy(false);
+      }
+    });
+
+    document.getElementById('btnRebuildAll').addEventListener('click', ()=> runRebuild('all'));
+    document.getElementById('btnRebuildProduct').addEventListener('click', ()=> runRebuild('product'));
+    document.getElementById('btnRebuildSystem').addEventListener('click', ()=> runRebuild('system'));
+
+    document.getElementById('btnListMd').addEventListener('click', async ()=>{
+      setBusy(true, 'Loading...');
+      try{
+        const data = await refreshAdminInfo();
+        if(data) setTab('md');
+      }catch(e){
+        uiLog('Exception: ' + (e.message || e));
+        setBadge('Error', 'bad');
+      }finally{
+        setBusy(false);
+      }
+    });
+
+    document.getElementById('btnUploadMd').addEventListener('click', ()=> uploadMd(null));
+    document.getElementById('btnUploadThenRebuildProduct').addEventListener('click', ()=> uploadMd('product'));
+    document.getElementById('btnUploadThenRebuildAll').addEventListener('click', ()=> uploadMd('all'));
+
+    document.getElementById('btnRefreshAll').addEventListener('click', refreshAll);
+    document.getElementById('btnClearLog').addEventListener('click', clearLog);
+
+    document.getElementById('btnLogTail').addEventListener('click', fetchLogTail);
+    document.getElementById('btnLogAuto').addEventListener('click', ()=>{
+      if(logTimer) stopAutoLog();
+      else startAutoLog();
+    });
+
+    // -----------------------------
+    // init
+    // -----------------------------
+    tokenEl.value = getToken();
+    setBadge('Ready', 'ok');
+    setTab('md');
+    uiLog('Admin ready. Token header= X-Reload-Token');
+  </script>
+</body>
+</html>

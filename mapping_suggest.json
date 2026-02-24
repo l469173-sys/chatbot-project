@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "db": ".\\company_data.db",
+    "images_dir": ".\\crawled_data\\images",
+    "topk": 8,
+    "auto_threshold": 0.92
+  },
+  "items": []
+}
